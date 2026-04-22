@@ -626,14 +626,7 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function callAPI(system, messages, retries=3, delayMs=2000) {
   for (let i=0; i<retries; i++) {
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'anthropic-version':'2023-06-01',
-          'anthropic-dangerous-direct-browser-access':'true'
-        },
-        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200, system, messages })
+      const res = await fetch('/api/generate', { ... })
       });
       if (res.status===529||res.status===429) {
         if (i<retries-1) { await sleep(delayMs*(i+1)); continue; }
