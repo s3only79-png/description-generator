@@ -3,24 +3,28 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
+
   if (!apiKey) {
     return res.status(500).json({ error: 'API key not configured' });
   }
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01',
-        'x-api-key': apiKey
+        'Authorization': `Bearer ${apiKey}` // 핵심 수정
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify({
+        model: "gpt-4.1-mini",
+        messages: req.body.messages
+      })
     });
 
     const data = await response.json();
     return res.status(response.status).json(data);
+
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
