@@ -560,28 +560,34 @@ async function callAPI(system, messages, retries=3, delayMs=2000) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1200,
-          system,
-          messages
+          model: "gpt-4.1-mini",
+          messages: [
+            { role: "system", content: system },
+            ...messages
+          ]
         })
       });
-      if (res.status===529||res.status===429) {
-        if (i<retries-1) { await sleep(delayMs*(i+1)); continue; }
-      }
+
       if (!res.ok) {
         const err = await res.json().catch(()=>({}));
-        throw new Error(err?.error?.message||JSON.stringify(err)||`HTTP ${res.status}`);
+        throw new Error(err?.error?.message || `HTTP ${res.status}`);
       }
+
       const data = await res.json();
-      return (data.content||[]).map(b=>b.text||'').join('');
+
+      console.log("OPENAI RESPONSE:", data); // 🔥 디버깅 핵심
+
+      return data.choices?.[0]?.message?.content || '';
+
     } catch(e) {
-      if (i<retries-1) { await sleep(delayMs*(i+1)); continue; }
+      if (i<retries-1) {
+        await new Promise(r=>setTimeout(r, delayMs*(i+1)));
+        continue;
+      }
       throw e;
     }
   }
 }
-
 function buildMessages() {
   const screenName = document.getElementById('screen-name').value.trim();
   const screenDesc = document.getElementById('screen-desc').value.trim();
