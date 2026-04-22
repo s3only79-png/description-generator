@@ -22,7 +22,6 @@ header { margin-bottom:1.5rem; }
 header h1 { font-size:20px; font-weight:600; letter-spacing:-0.02em; margin-bottom:4px; }
 header p { font-size:13px; color:var(--text2); }
 
-/* 안내 */
 .guide-toggle { display:flex; align-items:center; gap:6px; background:none; border:1px solid var(--border); border-radius:var(--radius); padding:7px 14px; font-size:12px; color:var(--text2); cursor:pointer; font-family:inherit; margin-bottom:1rem; }
 .guide-toggle:hover { background:var(--surface2); }
 .guide-box { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem 1.5rem; margin-bottom:1.25rem; display:none; }
@@ -36,15 +35,11 @@ header p { font-size:13px; color:var(--text2); }
 .guide-divider { grid-column:1/-1; border:none; border-top:1px solid var(--border); margin:0.25rem 0; }
 .guide-badge { display:inline-flex; align-items:center; font-size:10px; font-weight:600; padding:2px 7px; border-radius:20px; background:var(--pm-tag); color:var(--pm-text); }
 
-/* 툴바 (히스토리 + 템플릿) */
 .toolbar { display:flex; gap:8px; margin-bottom:1rem; flex-wrap:wrap; }
 .toolbar-btn { display:flex; align-items:center; gap:5px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:7px 12px; font-size:12px; color:var(--text2); cursor:pointer; font-family:inherit; white-space:nowrap; }
 .toolbar-btn:hover { background:var(--surface2); border-color:var(--border2); }
 .toolbar-btn svg { width:13px; height:13px; flex-shrink:0; }
-.toolbar-btn.save-tpl { color:var(--pm-text); border-color:var(--pm-border); }
-.toolbar-btn.save-tpl:hover { background:var(--pm-bg); }
 
-/* 드롭다운 패널 공통 */
 .dropdown-wrap { position:relative; }
 .dropdown-panel { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:280px; max-width:360px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 4px 16px rgba(0,0,0,0.1); z-index:100; overflow:hidden; }
 .dropdown-panel.open { display:block; }
@@ -62,20 +57,16 @@ header p { font-size:13px; color:var(--text2); }
 .dropdown-item-meta { font-size:11px; color:var(--text3); margin-top:1px; }
 .dropdown-item-del { background:none; border:none; font-size:14px; cursor:pointer; color:var(--text3); padding:2px 4px; flex-shrink:0; }
 .dropdown-item-del:hover { color:var(--danger); }
-
-/* 템플릿 저장 인풋 */
 .tpl-save-row { display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border); }
 .tpl-save-row input { flex:1; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:6px 10px; font-family:inherit; font-size:12px; color:var(--text); outline:none; }
 .tpl-save-row input:focus { border-color:var(--border2); }
 .tpl-save-confirm { background:var(--accent); color:var(--accent-fg); border:none; border-radius:var(--radius); padding:6px 12px; font-size:12px; cursor:pointer; font-family:inherit; white-space:nowrap; }
 .tpl-save-confirm:hover { opacity:0.8; }
 
-/* 탭 */
 .tab-bar { display:flex; gap:4px; margin-bottom:1rem; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:4px; }
 .tab-btn { flex:1; padding:8px; border:none; border-radius:6px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; background:transparent; color:var(--text2); transition:all 0.15s; }
 .tab-btn.active { background:var(--surface); color:var(--text); box-shadow:0 1px 3px rgba(0,0,0,0.08); }
 
-/* 카드·폼 */
 .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem; margin-bottom:1rem; }
 .section-label { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--text3); margin-bottom:0.75rem; }
 .field { margin-bottom:0.875rem; }
@@ -85,7 +76,6 @@ input[type="text"], select, textarea { width:100%; background:var(--surface2); b
 input[type="text"]:focus, select:focus, textarea:focus { border-color:var(--border2); background:var(--surface); }
 textarea { resize:vertical; }
 
-/* 이미지 업로드 */
 .upload-area { border:2px dashed var(--border2); border-radius:var(--radius-lg); padding:2.5rem 1rem; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--surface2); position:relative; }
 .upload-area:hover, .upload-area.drag-over { border-color:var(--accent); background:var(--surface); }
 .upload-area input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
@@ -97,7 +87,6 @@ textarea { resize:vertical; }
 .remove-img-btn { position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.55); color:#fff; border:none; border-radius:6px; padding:4px 10px; font-size:11px; cursor:pointer; }
 .remove-img-btn:hover { background:rgba(0,0,0,0.8); }
 
-/* 수동 입력 */
 .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .item-card { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; margin-bottom:10px; position:relative; }
 .item-card input[type="text"], .item-card select, .item-card textarea { background:var(--surface); }
@@ -107,7 +96,6 @@ textarea { resize:vertical; }
 .add-btn { width:100%; background:transparent; border:1.5px dashed var(--border2); border-radius:var(--radius); padding:9px; font-size:13px; color:var(--text2); cursor:pointer; margin-bottom:1.25rem; font-family:inherit; }
 .add-btn:hover { background:var(--surface); }
 
-/* 액션 */
 .actions { display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; }
 .generate-btn { background:var(--accent); color:var(--accent-fg); border:none; border-radius:var(--radius); padding:10px 20px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; }
 .generate-btn:hover { opacity:0.8; }
@@ -116,7 +104,6 @@ textarea { resize:vertical; }
 .clear-btn:hover { background:var(--surface2); }
 .status { font-size:12px; color:var(--text3); margin-top:8px; min-height:16px; }
 
-/* 결과 */
 .result-section { display:none; margin-top:2rem; }
 .result-block { border-radius:var(--radius-lg); padding:1.25rem 1.5rem; margin-bottom:12px; }
 .result-block-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
@@ -140,20 +127,18 @@ textarea { resize:vertical; }
 .pm-suggest-btn:disabled { opacity:0.4; cursor:not-allowed; }
 .download-btn { width:100%; background:var(--accent); color:var(--accent-fg); border:none; border-radius:var(--radius); padding:10px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; margin-top:4px; display:none; }
 .download-btn:hover { opacity:0.8; }
+
 .block-pending { opacity:0.45; }
 .block-done { opacity:1; transition:opacity 0.3s; }
 .loading-text { opacity:0.4; font-family:'JetBrains Mono',monospace; font-size:12.5px; }
 .dot-anim::after { content:''; animation:dots 1.2s infinite; }
 @keyframes dots { 0%{content:''} 33%{content:'.'} 66%{content:'..'} 100%{content:'...'} }
-
-/* 히스토리 배지 */
 .hist-badge { display:inline-block; background:var(--surface2); color:var(--text3); font-size:10px; padding:1px 6px; border-radius:10px; margin-left:4px; }
 
 @media(max-width:520px) {
   .row { grid-template-columns:1fr; }
   .actions { grid-template-columns:1fr; }
   .guide-grid { grid-template-columns:1fr; }
-  .toolbar { gap:6px; }
   .dropdown-panel { min-width:240px; }
 }
 </style>
@@ -166,7 +151,6 @@ textarea { resize:vertical; }
   <p>화면 캡처 또는 직접 입력으로 기획서용 디스크립션을 자동 작성합니다.</p>
 </header>
 
-<!-- 사용 안내 -->
 <button class="guide-toggle" id="guide-btn" onclick="toggleGuide()">
   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;flex-shrink:0"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v5M8 5.5v.5"/></svg>
   사용 안내 보기
@@ -196,10 +180,8 @@ textarea { resize:vertical; }
   </div>
 </div>
 
-<!-- 툴바: 히스토리 + 템플릿 -->
-<div class="toolbar" id="toolbar">
-
-  <!-- 히스토리 드롭다운 -->
+<!-- 툴바 -->
+<div class="toolbar">
   <div class="dropdown-wrap" id="hist-wrap">
     <button class="toolbar-btn" onclick="toggleDropdown('hist')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3.5l2 1.5"/></svg>
@@ -213,8 +195,6 @@ textarea { resize:vertical; }
       <div class="dropdown-list" id="hist-list"></div>
     </div>
   </div>
-
-  <!-- 템플릿 불러오기 드롭다운 -->
   <div class="dropdown-wrap" id="tpl-load-wrap">
     <button class="toolbar-btn" onclick="toggleDropdown('tpl')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 8h6M8 5v6"/></svg>
@@ -232,7 +212,6 @@ textarea { resize:vertical; }
       </div>
     </div>
   </div>
-
 </div>
 
 <!-- 화면 정보 -->
@@ -254,14 +233,14 @@ textarea { resize:vertical; }
   <button class="tab-btn" id="tab-img" onclick="switchTab('img')">이미지로 자동 생성</button>
 </div>
 
-<!-- 직접 입력 탭 -->
+<!-- 직접 입력 -->
 <div id="pane-manual">
   <div class="section-label" style="padding:0 4px;">구성 요소</div>
   <div id="items-container"></div>
   <button class="add-btn" onclick="addItem()">+ 요소 추가</button>
 </div>
 
-<!-- 이미지 탭 -->
+<!-- 이미지 -->
 <div id="pane-img" style="display:none;">
   <div class="card">
     <div class="section-label">화면 캡처 업로드</div>
@@ -334,14 +313,13 @@ function toggleGuide() {
 
 /* ── 드롭다운 ── */
 function toggleDropdown(key) {
-  const panelId = key==='hist' ? 'panel-hist' : 'panel-tpl';
-  const otherId = key==='hist' ? 'panel-tpl' : 'panel-hist';
-  document.getElementById(otherId).classList.remove('open');
-  const panel = document.getElementById(panelId);
+  const pid = key==='hist' ? 'panel-hist' : 'panel-tpl';
+  const oid = key==='hist' ? 'panel-tpl' : 'panel-hist';
+  document.getElementById(oid).classList.remove('open');
+  const panel = document.getElementById(pid);
   panel.classList.toggle('open');
   if (panel.classList.contains('open')) {
-    if (key==='hist') renderHistory();
-    else renderTemplates();
+    key==='hist' ? renderHistory() : renderTemplates();
   }
 }
 function closeDropdown(key) {
@@ -434,8 +412,8 @@ function getElements() {
 function loadElements(elems) {
   items=[]; counter=0;
   document.getElementById('items-container').innerHTML='';
-  if (!elems || !elems.length) { addItem(); return; }
-  elems.forEach(e => addItem(e));
+  if (!elems||!elems.length) { addItem(); return; }
+  elems.forEach(e=>addItem(e));
 }
 function clearAll() {
   removeImage(); items=[]; counter=0;
@@ -452,58 +430,35 @@ function clearAll() {
 }
 addItem();
 
-/* ── localStorage 키 ── */
-const LS_HIST = 'desc_history_v1';
-const LS_TPL  = 'desc_templates_v1';
-const MAX_HIST = 20;
-
-function loadHistory() {
-  try { return JSON.parse(localStorage.getItem(LS_HIST)||'[]'); } catch{ return []; }
-}
-function saveHistory(list) {
-  try { localStorage.setItem(LS_HIST, JSON.stringify(list)); } catch{}
-}
-function loadTemplates() {
-  try { return JSON.parse(localStorage.getItem(LS_TPL)||'[]'); } catch{ return []; }
-}
-function saveTemplatesLS(list) {
-  try { localStorage.setItem(LS_TPL, JSON.stringify(list)); } catch{}
-}
-
-function updateHistCount() {
-  const list = loadHistory();
-  document.getElementById('hist-count').textContent = list.length;
-}
-
+/* ── localStorage ── */
+const LS_HIST='desc_history_v1', LS_TPL='desc_templates_v1', MAX_HIST=20;
+function loadHistory() { try { return JSON.parse(localStorage.getItem(LS_HIST)||'[]'); } catch{ return []; } }
+function saveHistory(l) { try { localStorage.setItem(LS_HIST, JSON.stringify(l)); } catch{} }
+function loadTemplates() { try { return JSON.parse(localStorage.getItem(LS_TPL)||'[]'); } catch{ return []; } }
+function saveTemplatesLS(l) { try { localStorage.setItem(LS_TPL, JSON.stringify(l)); } catch{} }
+function updateHistCount() { document.getElementById('hist-count').textContent = loadHistory().length; }
 function pushHistory(entry) {
-  const list = loadHistory();
-  list.unshift(entry);
-  if (list.length > MAX_HIST) list.splice(MAX_HIST);
-  saveHistory(list);
-  updateHistCount();
+  const l = loadHistory(); l.unshift(entry);
+  if (l.length>MAX_HIST) l.splice(MAX_HIST);
+  saveHistory(l); updateHistCount();
 }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 function renderHistory() {
   const list = loadHistory();
   const el = document.getElementById('hist-list');
-  if (!list.length) {
-    el.innerHTML = '<div class="dropdown-empty">저장된 히스토리가 없습니다</div>'; return;
-  }
-  el.innerHTML = list.map((h, i) => `
+  if (!list.length) { el.innerHTML='<div class="dropdown-empty">저장된 히스토리가 없습니다</div>'; return; }
+  el.innerHTML = list.map((h,i) => `
     <div class="dropdown-item" onclick="loadHistoryItem(${i})">
       <div class="dropdown-item-main">
-        <div class="dropdown-item-name">${esc(h.screenName || '(이름 없음)')}</div>
+        <div class="dropdown-item-name">${esc(h.screenName||'(이름 없음)')}</div>
         <div class="dropdown-item-meta">${h.date} · 요소 ${h.elements?.length||0}개</div>
       </div>
       <button class="dropdown-item-del" onclick="deleteHistory(event,${i})">×</button>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
-
 function loadHistoryItem(i) {
-  const list = loadHistory();
-  const h = list[i];
-  if (!h) return;
+  const h = loadHistory()[i]; if (!h) return;
   document.getElementById('screen-name').value = h.screenName||'';
   document.getElementById('screen-desc').value = h.screenDesc||'';
   loadElements(h.elements||[]);
@@ -513,79 +468,54 @@ function loadHistoryItem(i) {
     document.getElementById('text-mine').textContent = h.resultMine;
     document.getElementById('blk-mine').classList.remove('block-pending');
     document.getElementById('blk-mine').classList.add('block-done');
-    document.getElementById('result-section').style.display = 'block';
-    document.getElementById('pm-btn-wrap').style.display = 'block';
-    document.getElementById('download-btn').style.display = 'block';
-    document.getElementById('blk-pm').style.display = 'none';
-    document.getElementById('status').textContent = '히스토리에서 불러왔습니다';
+    document.getElementById('result-section').style.display='block';
+    document.getElementById('pm-btn-wrap').style.display='block';
+    document.getElementById('download-btn').style.display='block';
+    document.getElementById('blk-pm').style.display='none';
+    document.getElementById('status').textContent='히스토리에서 불러왔습니다';
   }
   closeDropdown('hist');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top:0, behavior:'smooth' });
 }
-
-function deleteHistory(e, i) {
+function deleteHistory(e,i) {
   e.stopPropagation();
-  const list = loadHistory();
-  list.splice(i, 1);
-  saveHistory(list);
-  updateHistCount();
-  renderHistory();
+  const l = loadHistory(); l.splice(i,1); saveHistory(l); updateHistCount(); renderHistory();
 }
-
 function renderTemplates() {
   const list = loadTemplates();
   const el = document.getElementById('tpl-list');
-  if (!list.length) {
-    el.innerHTML = '<div class="dropdown-empty">저장된 템플릿이 없습니다</div>'; return;
-  }
-  el.innerHTML = list.map((t, i) => `
+  if (!list.length) { el.innerHTML='<div class="dropdown-empty">저장된 템플릿이 없습니다</div>'; return; }
+  el.innerHTML = list.map((t,i) => `
     <div class="dropdown-item" onclick="loadTemplate(${i})">
       <div class="dropdown-item-main">
         <div class="dropdown-item-name">${esc(t.name)}</div>
         <div class="dropdown-item-meta">요소 ${t.elements?.length||0}개</div>
       </div>
       <button class="dropdown-item-del" onclick="deleteTemplate(event,${i})">×</button>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
-
 function saveTemplate() {
   const name = document.getElementById('tpl-name-input').value.trim();
   if (!name) { document.getElementById('tpl-name-input').focus(); return; }
   const elements = getElements();
   if (!elements.length) { alert('저장할 구성 요소가 없습니다.'); return; }
-  const list = loadTemplates();
-  list.unshift({ name, elements });
-  saveTemplatesLS(list);
-  document.getElementById('tpl-name-input').value = '';
+  const l = loadTemplates(); l.unshift({ name, elements }); saveTemplatesLS(l);
+  document.getElementById('tpl-name-input').value='';
   renderTemplates();
 }
-
 function loadTemplate(i) {
-  const list = loadTemplates();
-  const t = list[i];
-  if (!t) return;
+  const t = loadTemplates()[i]; if (!t) return;
   loadElements(t.elements||[]);
   closeDropdown('tpl');
-  document.getElementById('status').textContent = `"${t.name}" 템플릿을 불러왔습니다`;
+  document.getElementById('status').textContent=`"${t.name}" 템플릿을 불러왔습니다`;
 }
-
-function deleteTemplate(e, i) {
+function deleteTemplate(e,i) {
   e.stopPropagation();
-  const list = loadTemplates();
-  list.splice(i, 1);
-  saveTemplatesLS(list);
-  renderTemplates();
+  const l = loadTemplates(); l.splice(i,1); saveTemplatesLS(l); renderTemplates();
 }
-
-function esc(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ── 초기 히스토리 카운트 ── */
 updateHistCount();
 
-/* ── 프롬프트 ── */
+/* ── API ── */
 window._results = {};
 window._lastMessages = null;
 
@@ -621,17 +551,20 @@ const SYS_PM = `너는 서비스 기획 10년차 전문가다. 입력된 화면 
 - 항목: 설명
 ---`;
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
 
 async function callAPI(system, messages, retries=3, delayMs=2000) {
   for (let i=0; i<retries; i++) {
     try {
       const res = await fetch('/api/generate', {
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-        },
-        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200, system, messages })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1200,
+          system,
+          messages
+        })
       });
       if (res.status===529||res.status===429) {
         if (i<retries-1) { await sleep(delayMs*(i+1)); continue; }
@@ -682,17 +615,16 @@ async function generateBase() {
   if (currentTab==='manual' && !getElements().length) {
     document.getElementById('status').textContent='최소 하나의 요소를 입력해주세요.'; return;
   }
-
   const btn = document.getElementById('gen-btn');
-  btn.disabled = true;
-  document.getElementById('status').innerHTML = '<span class="dot-anim">기본 디스크립션 생성 중</span>';
+  btn.disabled=true;
+  document.getElementById('status').innerHTML='<span class="dot-anim">기본 디스크립션 생성 중</span>';
   const blk = document.getElementById('blk-mine');
   blk.classList.add('block-pending'); blk.classList.remove('block-done');
-  document.getElementById('text-mine').innerHTML = '<span class="loading-text dot-anim">생성 중</span>';
-  document.getElementById('result-section').style.display = 'block';
-  document.getElementById('blk-pm').style.display = 'none';
-  document.getElementById('pm-btn-wrap').style.display = 'none';
-  document.getElementById('download-btn').style.display = 'none';
+  document.getElementById('text-mine').innerHTML='<span class="loading-text dot-anim">생성 중</span>';
+  document.getElementById('result-section').style.display='block';
+  document.getElementById('blk-pm').style.display='none';
+  document.getElementById('pm-btn-wrap').style.display='none';
+  document.getElementById('download-btn').style.display='none';
   document.getElementById('result-section').scrollIntoView({ behavior:'smooth', block:'start' });
 
   const messages = buildMessages();
@@ -703,12 +635,10 @@ async function generateBase() {
     window._results.mine = text;
     document.getElementById('text-mine').textContent = text;
     blk.classList.remove('block-pending'); blk.classList.add('block-done');
-    document.getElementById('status').textContent = '완료';
-    document.getElementById('pm-btn-wrap').style.display = 'block';
-    document.getElementById('download-btn').style.display = 'block';
-    window._screenName = document.getElementById('screen-name').value.trim() || '디스크립션';
-
-    /* 히스토리 자동 저장 */
+    document.getElementById('status').textContent='완료';
+    document.getElementById('pm-btn-wrap').style.display='block';
+    document.getElementById('download-btn').style.display='block';
+    window._screenName = document.getElementById('screen-name').value.trim()||'디스크립션';
     const now = new Date();
     const dateStr = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     pushHistory({
@@ -718,42 +648,40 @@ async function generateBase() {
       resultMine: text,
       date: dateStr
     });
-
   } catch(e) {
-    document.getElementById('text-mine').textContent = `생성 실패: ${e.message}`;
+    document.getElementById('text-mine').textContent=`생성 실패: ${e.message}`;
     blk.classList.remove('block-pending'); blk.classList.add('block-done');
-    document.getElementById('status').textContent = '오류가 발생했습니다.';
+    document.getElementById('status').textContent='오류가 발생했습니다.';
   }
-  btn.disabled = false;
+  btn.disabled=false;
 }
 
 async function generatePM() {
   const pmBtn = document.getElementById('pm-btn');
-  pmBtn.disabled = true;
-  pmBtn.textContent = '생성 중...';
+  pmBtn.disabled=true; pmBtn.textContent='생성 중...';
   const blk = document.getElementById('blk-pm');
-  blk.style.display = 'block';
+  blk.style.display='block';
   blk.classList.add('block-pending'); blk.classList.remove('block-done');
-  document.getElementById('text-pm').innerHTML = '<span class="loading-text dot-anim">생성 중</span>';
+  document.getElementById('text-pm').innerHTML='<span class="loading-text dot-anim">생성 중</span>';
   try {
     const text = await callAPI(SYS_PM, window._lastMessages);
     window._results.pm = text;
-    document.getElementById('text-pm').textContent = text;
+    document.getElementById('text-pm').textContent=text;
     blk.classList.remove('block-pending'); blk.classList.add('block-done');
-    pmBtn.textContent = '+ 기획 전문가 제안 다시 받기';
+    pmBtn.textContent='+ 기획 전문가 제안 다시 받기';
   } catch(e) {
-    document.getElementById('text-pm').textContent = `생성 실패: ${e.message}`;
+    document.getElementById('text-pm').textContent=`생성 실패: ${e.message}`;
     blk.classList.remove('block-pending'); blk.classList.add('block-done');
-    pmBtn.textContent = '+ 기획 전문가 제안 받기';
+    pmBtn.textContent='+ 기획 전문가 제안 받기';
   }
-  pmBtn.disabled = false;
+  pmBtn.disabled=false;
 }
 
 function copyBlock(key) {
   const text = document.getElementById('text-'+key).textContent;
   navigator.clipboard.writeText(text).then(() => {
-    const btnMap = { mine:document.querySelector('#blk-mine .copy-small'), pm:document.querySelector('#blk-pm .copy-small') };
-    const btn = btnMap[key]; if (!btn) return;
+    const m = { mine:document.querySelector('#blk-mine .copy-small'), pm:document.querySelector('#blk-pm .copy-small') };
+    const btn = m[key]; if (!btn) return;
     const orig = btn.textContent;
     btn.textContent='복사됨!';
     setTimeout(()=>btn.textContent=orig,1500);
