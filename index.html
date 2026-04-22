@@ -556,38 +556,37 @@ function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
 async function callAPI(system, messages, retries=3, delayMs=2000) {
   for (let i=0; i<retries; i++) {
     try {
+      /* OpenAI: system을 messages 배열 첫번째로 포함 */
+      const openaiMessages = [
+        { role: 'system', content: system },
+        ...messages
+      ];
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: "gpt-4.1-mini",
-          messages: [
-            { role: "system", content: system },
-            ...messages
-          ]
+          model: 'gpt-4o',
+          max_tokens: 1200,
+          messages: openaiMessages
         })
       });
-
+      if (res.status===429) {
+        if (i<retries-1) { await sleep(delayMs*(i+1)); continue; }
+      }
       if (!res.ok) {
         const err = await res.json().catch(()=>({}));
-        throw new Error(err?.error?.message || `HTTP ${res.status}`);
+        throw new Error(err?.error?.message||JSON.stringify(err)||`HTTP ${res.status}`);
       }
-
       const data = await res.json();
-
-      console.log("OPENAI RESPONSE:", data); // 🔥 디버깅 핵심
-
+      /* OpenAI 응답 파싱 */
       return data.choices?.[0]?.message?.content || '';
-
     } catch(e) {
-      if (i<retries-1) {
-        await new Promise(r=>setTimeout(r, delayMs*(i+1)));
-        continue;
-      }
+      if (i<retries-1) { await sleep(delayMs*(i+1)); continue; }
       throw e;
     }
   }
 }
+
 function buildMessages() {
   const screenName = document.getElementById('screen-name').value.trim();
   const screenDesc = document.getElementById('screen-desc').value.trim();
@@ -596,8 +595,9 @@ function buildMessages() {
     if (screenName) parts.push(`화면명: ${screenName}`);
     if (screenDesc) parts.push(`화면 설명: ${screenDesc}`);
     parts.push('위 화면 이미지의 모든 UI 구성 요소를 인식하여 디스크립션을 작성해주세요.');
+    /* OpenAI image_url 형식 */
     return [{ role:'user', content:[
-      { type:'image', source:{ type:'base64', media_type:imgMime, data:imgBase64 } },
+      { type:'image_url', image_url:{ url:`data:${imgMime};base64,${imgBase64}` } },
       { type:'text', text:parts.join('\n') }
     ]}];
   }
