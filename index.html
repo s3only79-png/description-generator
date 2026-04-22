@@ -626,7 +626,12 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function callAPI(system, messages, retries=3, delayMs=2000) {
   for (let i=0; i<retries; i++) {
     try {
-      const res = await fetch('/api/generate', { ... })
+      const res = await fetch('/api/generate', {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+        },
+        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200, system, messages })
       });
       if (res.status===529||res.status===429) {
         if (i<retries-1) { await sleep(delayMs*(i+1)); continue; }
