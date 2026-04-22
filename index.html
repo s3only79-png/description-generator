@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>화면 디스크립션 생성기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#f5f4f0; --surface:#fff; --surface2:#f0efe9;
+  --border:#e0ddd5; --border2:#ccc9bf;
+  --text:#1a1917; --text2:#6b6860; --text3:#9e9b94;
+  --accent:#1a1917; --accent-fg:#fff;
+  --danger:#c0392b; --radius:8px; --radius-lg:12px;
+  --pm-bg:#eef5ff; --pm-border:#b8d4f0; --pm-text:#0c447c; --pm-tag:#daeaf9;
+}
+body { font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:2rem 1rem 4rem; font-size:14px; line-height:1.6; }
+.container { max-width:780px; margin:0 auto; }
+
+header { margin-bottom:1.5rem; }
+header h1 { font-size:20px; font-weight:600; letter-spacing:-0.02em; margin-bottom:4px; }
+header p { font-size:13px; color:var(--text2); }
+
+/* 안내 */
+.guide-toggle { display:flex; align-items:center; gap:6px; background:none; border:1px solid var(--border); border-radius:var(--radius); padding:7px 14px; font-size:12px; color:var(--text2); cursor:pointer; font-family:inherit; margin-bottom:1rem; }
+.guide-toggle:hover { background:var(--surface2); }
+.guide-box { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem 1.5rem; margin-bottom:1.25rem; display:none; }
+.guide-box.open { display:block; }
+.guide-title { font-size:13px; font-weight:600; margin-bottom:1rem; }
+.guide-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.guide-step { display:flex; align-items:flex-start; gap:8px; margin-bottom:8px; }
+.guide-num { width:20px; height:20px; border-radius:50%; background:var(--accent); color:var(--accent-fg); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+.guide-text { font-size:12px; color:var(--text2); line-height:1.5; }
+.guide-text strong { color:var(--text); font-weight:600; }
+.guide-divider { grid-column:1/-1; border:none; border-top:1px solid var(--border); margin:0.25rem 0; }
+.guide-badge { display:inline-flex; align-items:center; font-size:10px; font-weight:600; padding:2px 7px; border-radius:20px; background:var(--pm-tag); color:var(--pm-text); }
+
+/* 툴바 (히스토리 + 템플릿) */
+.toolbar { display:flex; gap:8px; margin-bottom:1rem; flex-wrap:wrap; }
+.toolbar-btn { display:flex; align-items:center; gap:5px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:7px 12px; font-size:12px; color:var(--text2); cursor:pointer; font-family:inherit; white-space:nowrap; }
+.toolbar-btn:hover { background:var(--surface2); border-color:var(--border2); }
+.toolbar-btn svg { width:13px; height:13px; flex-shrink:0; }
+.toolbar-btn.save-tpl { color:var(--pm-text); border-color:var(--pm-border); }
+.toolbar-btn.save-tpl:hover { background:var(--pm-bg); }
+
+/* 드롭다운 패널 공통 */
+.dropdown-wrap { position:relative; }
+.dropdown-panel { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:280px; max-width:360px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 4px 16px rgba(0,0,0,0.1); z-index:100; overflow:hidden; }
+.dropdown-panel.open { display:block; }
+.dropdown-header { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--border); }
+.dropdown-header span { font-size:12px; font-weight:600; color:var(--text2); }
+.dropdown-close { background:none; border:none; font-size:16px; cursor:pointer; color:var(--text3); line-height:1; padding:2px; }
+.dropdown-close:hover { color:var(--text); }
+.dropdown-empty { padding:1rem 14px; font-size:12px; color:var(--text3); text-align:center; }
+.dropdown-list { max-height:260px; overflow-y:auto; }
+.dropdown-item { display:flex; align-items:center; padding:9px 14px; cursor:pointer; border-bottom:1px solid var(--border); gap:8px; }
+.dropdown-item:last-child { border-bottom:none; }
+.dropdown-item:hover { background:var(--surface2); }
+.dropdown-item-main { flex:1; min-width:0; }
+.dropdown-item-name { font-size:13px; color:var(--text); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dropdown-item-meta { font-size:11px; color:var(--text3); margin-top:1px; }
+.dropdown-item-del { background:none; border:none; font-size:14px; cursor:pointer; color:var(--text3); padding:2px 4px; flex-shrink:0; }
+.dropdown-item-del:hover { color:var(--danger); }
+
+/* 템플릿 저장 인풋 */
+.tpl-save-row { display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border); }
+.tpl-save-row input { flex:1; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:6px 10px; font-family:inherit; font-size:12px; color:var(--text); outline:none; }
+.tpl-save-row input:focus { border-color:var(--border2); }
+.tpl-save-confirm { background:var(--accent); color:var(--accent-fg); border:none; border-radius:var(--radius); padding:6px 12px; font-size:12px; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.tpl-save-confirm:hover { opacity:0.8; }
+
+/* 탭 */
+.tab-bar { display:flex; gap:4px; margin-bottom:1rem; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:4px; }
+.tab-btn { flex:1; padding:8px; border:none; border-radius:6px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; background:transparent; color:var(--text2); transition:all 0.15s; }
+.tab-btn.active { background:var(--surface); color:var(--text); box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+
+/* 카드·폼 */
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem; margin-bottom:1rem; }
+.section-label { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--text3); margin-bottom:0.75rem; }
+.field { margin-bottom:0.875rem; }
+.field:last-child { margin-bottom:0; }
+.field label { display:block; font-size:12px; font-weight:500; color:var(--text2); margin-bottom:5px; }
+input[type="text"], select, textarea { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:8px 10px; font-family:inherit; font-size:13px; color:var(--text); outline:none; transition:border-color 0.15s; }
+input[type="text"]:focus, select:focus, textarea:focus { border-color:var(--border2); background:var(--surface); }
+textarea { resize:vertical; }
+
+/* 이미지 업로드 */
+.upload-area { border:2px dashed var(--border2); border-radius:var(--radius-lg); padding:2.5rem 1rem; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--surface2); position:relative; }
+.upload-area:hover, .upload-area.drag-over { border-color:var(--accent); background:var(--surface); }
+.upload-area input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.upload-icon { width:36px; height:36px; margin:0 auto 12px; opacity:0.3; }
+.upload-label { font-size:13px; color:var(--text2); margin-bottom:4px; }
+.upload-sub { font-size:11px; color:var(--text3); }
+.preview-wrap { position:relative; margin-top:1rem; }
+.preview-img { width:100%; max-height:320px; object-fit:contain; border-radius:var(--radius); border:1px solid var(--border); background:var(--surface2); display:block; }
+.remove-img-btn { position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.55); color:#fff; border:none; border-radius:6px; padding:4px 10px; font-size:11px; cursor:pointer; }
+.remove-img-btn:hover { background:rgba(0,0,0,0.8); }
+
+/* 수동 입력 */
+.row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.item-card { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; margin-bottom:10px; position:relative; }
+.item-card input[type="text"], .item-card select, .item-card textarea { background:var(--surface); }
+.item-num { font-size:11px; font-weight:600; color:var(--text3); margin-bottom:10px; }
+.remove-btn { position:absolute; top:10px; right:10px; background:none; border:none; font-size:18px; cursor:pointer; color:var(--text3); line-height:1; }
+.remove-btn:hover { color:var(--danger); }
+.add-btn { width:100%; background:transparent; border:1.5px dashed var(--border2); border-radius:var(--radius); padding:9px; font-size:13px; color:var(--text2); cursor:pointer; margin-bottom:1.25rem; font-family:inherit; }
+.add-btn:hover { background:var(--surface); }
+
+/* 액션 */
+.actions { display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; }
+.generate-btn { background:var(--accent); color:var(--accent-fg); border:none; border-radius:var(--radius); padding:10px 20px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; }
+.generate-btn:hover { opacity:0.8; }
+.generate-btn:disabled { opacity:0.35; cursor:not-allowed; }
+.clear-btn { background:transparent; border:1px solid var(--border); border-radius:var(--radius); padding:10px 16px; font-family:inherit; font-size:13px; color:var(--text2); cursor:pointer; }
+.clear-btn:hover { background:var(--surface2); }
+.status { font-size:12px; color:var(--text3); margin-top:8px; min-height:16px; }
+
+/* 결과 */
+.result-section { display:none; margin-top:2rem; }
+.result-block { border-radius:var(--radius-lg); padding:1.25rem 1.5rem; margin-bottom:12px; }
+.result-block-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+.result-block-title { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; }
+.expert-tag { font-size:10px; font-weight:600; letter-spacing:0.06em; padding:3px 8px; border-radius:20px; }
+.result-text { font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:1.9; white-space:pre-wrap; word-break:break-all; }
+.copy-small { background:transparent; border:1px solid; border-radius:6px; padding:4px 10px; font-size:11px; cursor:pointer; font-family:inherit; opacity:0.55; }
+.copy-small:hover { opacity:1; }
+.block-mine { background:var(--surface); border:1px solid var(--border); }
+.block-mine .expert-tag { background:var(--surface2); color:var(--text2); }
+.block-mine .result-text { color:var(--text); }
+.block-mine .copy-small { color:var(--text2); border-color:var(--border2); }
+.block-pm { background:var(--pm-bg); border:1px solid var(--pm-border); display:none; }
+.block-pm .expert-tag { background:var(--pm-tag); color:var(--pm-text); }
+.block-pm .result-block-title { color:var(--pm-text); }
+.block-pm .result-text { color:var(--pm-text); }
+.block-pm .copy-small { color:var(--pm-text); border-color:var(--pm-border); }
+.pm-btn-wrap { margin-bottom:12px; display:none; }
+.pm-suggest-btn { width:100%; background:transparent; border:1.5px solid var(--pm-border); border-radius:var(--radius-lg); padding:11px; font-family:inherit; font-size:13px; font-weight:500; color:var(--pm-text); cursor:pointer; transition:all 0.15s; }
+.pm-suggest-btn:hover { background:var(--pm-bg); }
+.pm-suggest-btn:disabled { opacity:0.4; cursor:not-allowed; }
+.download-btn { width:100%; background:var(--accent); color:var(--accent-fg); border:none; border-radius:var(--radius); padding:10px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; margin-top:4px; display:none; }
+.download-btn:hover { opacity:0.8; }
+.block-pending { opacity:0.45; }
+.block-done { opacity:1; transition:opacity 0.3s; }
+.loading-text { opacity:0.4; font-family:'JetBrains Mono',monospace; font-size:12.5px; }
+.dot-anim::after { content:''; animation:dots 1.2s infinite; }
+@keyframes dots { 0%{content:''} 33%{content:'.'} 66%{content:'..'} 100%{content:'...'} }
+
+/* 히스토리 배지 */
+.hist-badge { display:inline-block; background:var(--surface2); color:var(--text3); font-size:10px; padding:1px 6px; border-radius:10px; margin-left:4px; }
+
+@media(max-width:520px) {
+  .row { grid-template-columns:1fr; }
+  .actions { grid-template-columns:1fr; }
+  .guide-grid { grid-template-columns:1fr; }
+  .toolbar { gap:6px; }
+  .dropdown-panel { min-width:240px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>화면 디스크립션 생성기</h1>
+  <p>화면 캡처 또는 직접 입력으로 기획서용 디스크립션을 자동 작성합니다.</p>
+</header>
+
+<!-- 사용 안내 -->
+<button class="guide-toggle" id="guide-btn" onclick="toggleGuide()">
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;flex-shrink:0"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v5M8 5.5v.5"/></svg>
+  사용 안내 보기
+</button>
+<div class="guide-box" id="guide-box">
+  <div class="guide-title">어떻게 사용하나요?</div>
+  <div class="guide-grid">
+    <div>
+      <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:8px;">방법 1 — 직접 입력</div>
+      <div class="guide-step"><div class="guide-num">1</div><div class="guide-text">요소 추가 후 기능명·타입·설명 입력</div></div>
+      <div class="guide-step"><div class="guide-num">2</div><div class="guide-text"><strong>디스크립션 생성</strong> 클릭</div></div>
+    </div>
+    <div>
+      <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:8px;">방법 2 — 이미지 자동 인식</div>
+      <div class="guide-step"><div class="guide-num">1</div><div class="guide-text"><strong>이미지 탭</strong>에서 화면 캡처 업로드</div></div>
+      <div class="guide-step"><div class="guide-num">2</div><div class="guide-text"><strong>디스크립션 생성</strong> 클릭 → AI 자동 인식</div></div>
+    </div>
+    <hr class="guide-divider">
+    <div style="grid-column:1/-1;">
+      <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:8px;">히스토리 · 템플릿</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.7;">
+        생성할 때마다 <strong>히스토리</strong>에 자동 저장됩니다. 최근 20건 유지.<br>
+        자주 쓰는 구성 요소 세트는 <strong>템플릿 저장</strong>으로 이름 붙여 보관하고 언제든 불러올 수 있어요.<br>
+        <span class="guide-badge">서비스 기획</span> 버튼은 기본 생성 후 필요할 때만 눌러 추가 제안을 받으세요.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 툴바: 히스토리 + 템플릿 -->
+<div class="toolbar" id="toolbar">
+
+  <!-- 히스토리 드롭다운 -->
+  <div class="dropdown-wrap" id="hist-wrap">
+    <button class="toolbar-btn" onclick="toggleDropdown('hist')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3.5l2 1.5"/></svg>
+      최근 히스토리 <span class="hist-badge" id="hist-count">0</span>
+    </button>
+    <div class="dropdown-panel" id="panel-hist">
+      <div class="dropdown-header">
+        <span>최근 히스토리</span>
+        <button class="dropdown-close" onclick="closeDropdown('hist')">×</button>
+      </div>
+      <div class="dropdown-list" id="hist-list"></div>
+    </div>
+  </div>
+
+  <!-- 템플릿 불러오기 드롭다운 -->
+  <div class="dropdown-wrap" id="tpl-load-wrap">
+    <button class="toolbar-btn" onclick="toggleDropdown('tpl')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 8h6M8 5v6"/></svg>
+      템플릿 불러오기
+    </button>
+    <div class="dropdown-panel" id="panel-tpl">
+      <div class="dropdown-header">
+        <span>저장된 템플릿</span>
+        <button class="dropdown-close" onclick="closeDropdown('tpl')">×</button>
+      </div>
+      <div class="dropdown-list" id="tpl-list"></div>
+      <div class="tpl-save-row">
+        <input type="text" id="tpl-name-input" placeholder="현재 요소를 템플릿으로 저장..." maxlength="30" />
+        <button class="tpl-save-confirm" onclick="saveTemplate()">저장</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 화면 정보 -->
+<div class="card">
+  <div class="section-label">화면 정보</div>
+  <div class="field">
+    <label>화면 이름 (선택)</label>
+    <input type="text" id="screen-name" placeholder="예: 특이사항 팝업" />
+  </div>
+  <div class="field">
+    <label>화면 설명 (선택)</label>
+    <textarea id="screen-desc" rows="2" placeholder="예: 특정 회원의 특이사항을 입력하고 이력을 확인하는 팝업 화면"></textarea>
+  </div>
+</div>
+
+<!-- 탭 -->
+<div class="tab-bar">
+  <button class="tab-btn active" id="tab-manual" onclick="switchTab('manual')">직접 입력으로 생성</button>
+  <button class="tab-btn" id="tab-img" onclick="switchTab('img')">이미지로 자동 생성</button>
+</div>
+
+<!-- 직접 입력 탭 -->
+<div id="pane-manual">
+  <div class="section-label" style="padding:0 4px;">구성 요소</div>
+  <div id="items-container"></div>
+  <button class="add-btn" onclick="addItem()">+ 요소 추가</button>
+</div>
+
+<!-- 이미지 탭 -->
+<div id="pane-img" style="display:none;">
+  <div class="card">
+    <div class="section-label">화면 캡처 업로드</div>
+    <div class="upload-area" id="upload-area">
+      <input type="file" id="img-input" accept="image/*" onchange="handleFile(event)" />
+      <svg class="upload-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="7" width="30" height="22" rx="3"/>
+        <circle cx="13" cy="17" r="3"/>
+        <path d="M3 26l8-7 6 5 5-4 11 8"/>
+      </svg>
+      <div class="upload-label">클릭하거나 이미지를 드래그해서 올려주세요</div>
+      <div class="upload-sub">PNG · JPG · WebP 지원</div>
+    </div>
+    <div class="preview-wrap" id="preview-wrap" style="display:none;">
+      <img id="preview-img" class="preview-img" alt="미리보기" />
+      <button class="remove-img-btn" onclick="removeImage()">이미지 제거</button>
+    </div>
+  </div>
+</div>
+
+<!-- 액션 -->
+<div class="actions">
+  <button class="generate-btn" id="gen-btn" onclick="generateBase()">디스크립션 생성</button>
+  <button class="clear-btn" onclick="clearAll()">초기화</button>
+</div>
+<div class="status" id="status"></div>
+
+<!-- 결과 -->
+<div class="result-section" id="result-section">
+  <div class="result-block block-mine block-pending" id="blk-mine">
+    <div class="result-block-header">
+      <div class="result-block-title"><span class="expert-tag">입력 기반</span>기본 디스크립션</div>
+      <button class="copy-small" onclick="copyBlock('mine')">복사</button>
+    </div>
+    <div class="result-text" id="text-mine"></div>
+  </div>
+  <div class="pm-btn-wrap" id="pm-btn-wrap">
+    <button class="pm-suggest-btn" id="pm-btn" onclick="generatePM()">+ 기획 전문가 제안 받기</button>
+  </div>
+  <div class="result-block block-pm" id="blk-pm">
+    <div class="result-block-header">
+      <div class="result-block-title"><span class="expert-tag">서비스 기획</span>기획 전문가 제안</div>
+      <button class="copy-small" onclick="copyBlock('pm')">복사</button>
+    </div>
+    <div class="result-text" id="text-pm"></div>
+  </div>
+  <button class="download-btn" id="download-btn" onclick="downloadAll()">전체 TXT 저장</button>
+</div>
+
+</div>
+<script>
+/* ── 탭 ── */
+let currentTab = 'manual';
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('pane-img').style.display = tab==='img' ? 'block' : 'none';
+  document.getElementById('pane-manual').style.display = tab==='manual' ? 'block' : 'none';
+  document.getElementById('tab-img').classList.toggle('active', tab==='img');
+  document.getElementById('tab-manual').classList.toggle('active', tab==='manual');
+}
+
+/* ── 안내 ── */
+function toggleGuide() {
+  const box = document.getElementById('guide-box');
+  const btn = document.getElementById('guide-btn');
+  box.classList.toggle('open');
+  const isOpen = box.classList.contains('open');
+  btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;flex-shrink:0"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v5M8 5.5v.5"/></svg> ${isOpen ? '사용 안내 닫기' : '사용 안내 보기'}`;
+}
+
+/* ── 드롭다운 ── */
+function toggleDropdown(key) {
+  const panelId = key==='hist' ? 'panel-hist' : 'panel-tpl';
+  const otherId = key==='hist' ? 'panel-tpl' : 'panel-hist';
+  document.getElementById(otherId).classList.remove('open');
+  const panel = document.getElementById(panelId);
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    if (key==='hist') renderHistory();
+    else renderTemplates();
+  }
+}
+function closeDropdown(key) {
+  document.getElementById(key==='hist' ? 'panel-hist' : 'panel-tpl').classList.remove('open');
+}
+document.addEventListener('click', e => {
+  if (!document.getElementById('hist-wrap').contains(e.target)) closeDropdown('hist');
+  if (!document.getElementById('tpl-load-wrap').contains(e.target)) closeDropdown('tpl');
+});
+
+/* ── 이미지 ── */
+let imgBase64 = null, imgMime = null;
+function handleFile(e) { const f = e.target.files[0]; if (f) loadImage(f); }
+function loadImage(file) {
+  imgMime = file.type || 'image/png';
+  const reader = new FileReader();
+  reader.onload = ev => {
+    imgBase64 = ev.target.result.split(',')[1];
+    document.getElementById('preview-img').src = ev.target.result;
+    document.getElementById('preview-wrap').style.display = 'block';
+    document.getElementById('upload-area').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+function removeImage() {
+  imgBase64 = null; imgMime = null;
+  document.getElementById('img-input').value = '';
+  document.getElementById('preview-wrap').style.display = 'none';
+  document.getElementById('upload-area').style.display = 'block';
+}
+const ua = document.getElementById('upload-area');
+ua.addEventListener('dragover', e => { e.preventDefault(); ua.classList.add('drag-over'); });
+ua.addEventListener('dragleave', () => ua.classList.remove('drag-over'));
+ua.addEventListener('drop', e => {
+  e.preventDefault(); ua.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) loadImage(f);
+});
+
+/* ── 구성 요소 ── */
+const TYPE_GROUPS = [
+  { label:'— AI 자동 판단', types:['(자동)'] },
+  { label:'텍스트 / 표시', types:['LABEL','TEXT','TITLE','HEADING','CAPTION','PLACEHOLDER','TOOLTIP','ERROR-MSG','EMPTY-STATE','GUIDE-TEXT'] },
+  { label:'입력', types:['INPUT','TEXTAREA','SELECT','CHECKBOX','RADIO','TOGGLE','DATE-PICKER','FILE-UPLOAD','SEARCH'] },
+  { label:'액션', types:['BUTTON','LINK','ICON-BUTTON','FAB'] },
+  { label:'구조 / 레이아웃', types:['TAB','ACCORDION','MODAL','BOTTOM-SHEET','DRAWER','STEPPER','DIVIDER','CARD','SECTION'] },
+  { label:'데이터 표시', types:['TABLE','LIST','BADGE','TAG','CHIP','AVATAR','IMAGE','THUMBNAIL','PROGRESS','PAGINATION'] },
+  { label:'피드백 / 상태', types:['TOAST','ALERT','BANNER','LOADING','SKELETON','SNACKBAR'] }
+];
+let items = [], counter = 0;
+function buildOptions(sel) {
+  return TYPE_GROUPS.map(g =>
+    `<optgroup label="${g.label}">${g.types.map(t =>
+      `<option value="${t}"${t===sel?' selected':''}>${t}</option>`
+    ).join('')}</optgroup>`).join('');
+}
+function addItem(data) {
+  const id = ++counter; items.push(id);
+  const div = document.createElement('div');
+  div.className = 'item-card'; div.id = 'item-'+id;
+  div.innerHTML = `
+    <div class="item-num">요소 ${items.length}</div>
+    <button class="remove-btn" onclick="removeItem(${id})">×</button>
+    <div class="row" style="margin-bottom:8px;">
+      <div class="field" style="margin:0;"><label>기능명</label><input type="text" id="name-${id}" placeholder="예: 특이사항 입력" value="${(data?.name||'').replace(/"/g,'&quot;')}" /></div>
+      <div class="field" style="margin:0;"><label>타입</label><select id="type-${id}">${buildOptions(data?.type||'(자동)')}</select></div>
+    </div>
+    <div class="field" style="margin:0;"><label>기능 설명</label><textarea id="desc-${id}" rows="2" placeholder="예: 최대 400자, 초과 시 팝업 노출">${data?.desc||''}</textarea></div>`;
+  document.getElementById('items-container').appendChild(div);
+  reorderLabels();
+}
+function removeItem(id) {
+  items = items.filter(i=>i!==id);
+  document.getElementById('item-'+id)?.remove();
+  reorderLabels();
+}
+function reorderLabels() {
+  items.forEach((id,idx) => {
+    const el = document.querySelector(`#item-${id} .item-num`);
+    if (el) el.textContent = `요소 ${idx+1}`;
+  });
+}
+function getElements() {
+  return items.map(id=>({
+    name: document.getElementById('name-'+id)?.value.trim()||'',
+    type: document.getElementById('type-'+id)?.value||'(자동)',
+    desc: document.getElementById('desc-'+id)?.value.trim()||''
+  })).filter(e=>e.name||e.desc);
+}
+function loadElements(elems) {
+  items=[]; counter=0;
+  document.getElementById('items-container').innerHTML='';
+  if (!elems || !elems.length) { addItem(); return; }
+  elems.forEach(e => addItem(e));
+}
+function clearAll() {
+  removeImage(); items=[]; counter=0;
+  document.getElementById('items-container').innerHTML='';
+  document.getElementById('screen-name').value='';
+  document.getElementById('screen-desc').value='';
+  document.getElementById('result-section').style.display='none';
+  document.getElementById('blk-pm').style.display='none';
+  document.getElementById('pm-btn-wrap').style.display='none';
+  document.getElementById('download-btn').style.display='none';
+  document.getElementById('status').textContent='';
+  window._results={};
+  addItem();
+}
+addItem();
+
+/* ── localStorage 키 ── */
+const LS_HIST = 'desc_history_v1';
+const LS_TPL  = 'desc_templates_v1';
+const MAX_HIST = 20;
+
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(LS_HIST)||'[]'); } catch{ return []; }
+}
+function saveHistory(list) {
+  try { localStorage.setItem(LS_HIST, JSON.stringify(list)); } catch{}
+}
+function loadTemplates() {
+  try { return JSON.parse(localStorage.getItem(LS_TPL)||'[]'); } catch{ return []; }
+}
+function saveTemplatesLS(list) {
+  try { localStorage.setItem(LS_TPL, JSON.stringify(list)); } catch{}
+}
+
+function updateHistCount() {
+  const list = loadHistory();
+  document.getElementById('hist-count').textContent = list.length;
+}
+
+function pushHistory(entry) {
+  const list = loadHistory();
+  list.unshift(entry);
+  if (list.length > MAX_HIST) list.splice(MAX_HIST);
+  saveHistory(list);
+  updateHistCount();
+}
+
+function renderHistory() {
+  const list = loadHistory();
+  const el = document.getElementById('hist-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="dropdown-empty">저장된 히스토리가 없습니다</div>'; return;
+  }
+  el.innerHTML = list.map((h, i) => `
+    <div class="dropdown-item" onclick="loadHistoryItem(${i})">
+      <div class="dropdown-item-main">
+        <div class="dropdown-item-name">${esc(h.screenName || '(이름 없음)')}</div>
+        <div class="dropdown-item-meta">${h.date} · 요소 ${h.elements?.length||0}개</div>
+      </div>
+      <button class="dropdown-item-del" onclick="deleteHistory(event,${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function loadHistoryItem(i) {
+  const list = loadHistory();
+  const h = list[i];
+  if (!h) return;
+  document.getElementById('screen-name').value = h.screenName||'';
+  document.getElementById('screen-desc').value = h.screenDesc||'';
+  loadElements(h.elements||[]);
+  if (h.resultMine) {
+    window._results = { mine: h.resultMine };
+    window._lastMessages = null;
+    document.getElementById('text-mine').textContent = h.resultMine;
+    document.getElementById('blk-mine').classList.remove('block-pending');
+    document.getElementById('blk-mine').classList.add('block-done');
+    document.getElementById('result-section').style.display = 'block';
+    document.getElementById('pm-btn-wrap').style.display = 'block';
+    document.getElementById('download-btn').style.display = 'block';
+    document.getElementById('blk-pm').style.display = 'none';
+    document.getElementById('status').textContent = '히스토리에서 불러왔습니다';
+  }
+  closeDropdown('hist');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function deleteHistory(e, i) {
+  e.stopPropagation();
+  const list = loadHistory();
+  list.splice(i, 1);
+  saveHistory(list);
+  updateHistCount();
+  renderHistory();
+}
+
+function renderTemplates() {
+  const list = loadTemplates();
+  const el = document.getElementById('tpl-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="dropdown-empty">저장된 템플릿이 없습니다</div>'; return;
+  }
+  el.innerHTML = list.map((t, i) => `
+    <div class="dropdown-item" onclick="loadTemplate(${i})">
+      <div class="dropdown-item-main">
+        <div class="dropdown-item-name">${esc(t.name)}</div>
+        <div class="dropdown-item-meta">요소 ${t.elements?.length||0}개</div>
+      </div>
+      <button class="dropdown-item-del" onclick="deleteTemplate(event,${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function saveTemplate() {
+  const name = document.getElementById('tpl-name-input').value.trim();
+  if (!name) { document.getElementById('tpl-name-input').focus(); return; }
+  const elements = getElements();
+  if (!elements.length) { alert('저장할 구성 요소가 없습니다.'); return; }
+  const list = loadTemplates();
+  list.unshift({ name, elements });
+  saveTemplatesLS(list);
+  document.getElementById('tpl-name-input').value = '';
+  renderTemplates();
+}
+
+function loadTemplate(i) {
+  const list = loadTemplates();
+  const t = list[i];
+  if (!t) return;
+  loadElements(t.elements||[]);
+  closeDropdown('tpl');
+  document.getElementById('status').textContent = `"${t.name}" 템플릿을 불러왔습니다`;
+}
+
+function deleteTemplate(e, i) {
+  e.stopPropagation();
+  const list = loadTemplates();
+  list.splice(i, 1);
+  saveTemplatesLS(list);
+  renderTemplates();
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── 초기 히스토리 카운트 ── */
+updateHistCount();
+
+/* ── 프롬프트 ── */
+window._results = {};
+window._lastMessages = null;
+
+const SYS_BASE = `너는 서비스기획 10년차다. 화면설계서 디스크립션을 작성한다.
+작성 규칙:
+1. bullet(-) 형태로 작성
+2. 짧고 명확하게, 명사형 또는 단문으로 작성 (~처리, ~표시, ~적용 등)
+3. 불필요한 배경·이유 설명 생략
+4. 누락 정보는 일반적인 서비스 기준으로 보완
+5. 상태(활성/비활성)와 조건 명확히 구분
+중요 규칙:
+- 각 요소는 "기능 + 상태변화 트리거"만 작성
+- 버튼 활성/비활성 조건은 버튼 항목에서만 정의
+- 타입이 (자동)이면 가장 적합한 타입을 직접 판단해 표기
+- 이미지가 제공된 경우 화면 내 모든 UI 요소를 빠짐없이 인식해 작성
+출력 형식:
+[기능명] (타입)
+- 항목: 설명
+---
+예시:
+입력 글자 수 체크 (LABEL)
+- 항목: 입력 글자 수 / 최대 글자 수, 입력한 글자에 따라 카운트 처리
+- 최대 입력 글자 수: 400자
+저장 (BUTTON)
+- 활성: 입력값 존재 또는 기존 값 변경 시
+- 비활성: 입력값 없거나 변경사항 없을 시`;
+
+const SYS_PM = `너는 서비스 기획 10년차 전문가다. 입력된 화면 디스크립션(또는 이미지)을 보고, 최신 서비스 트렌드와 기획 관점에서 추가하면 좋을 항목만 제안한다.
+- 입력 내용을 그대로 반복하지 않는다
+- 기획 관점 추가 상태·케이스·예외처리·정책 제안 (자동저장, 임시저장, 재시도, 권한 분기 등 트렌드 반영)
+출력 형식:
+[기능명 또는 신규 제안 항목] (타입)
+- 항목: 설명
+---`;
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function callAPI(system, messages, retries=3, delayMs=2000) {
+  for (let i=0; i<retries; i++) {
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'anthropic-version':'2023-06-01',
+          'anthropic-dangerous-direct-browser-access':'true'
+        },
+        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200, system, messages })
+      });
+      if (res.status===529||res.status===429) {
+        if (i<retries-1) { await sleep(delayMs*(i+1)); continue; }
+      }
+      if (!res.ok) {
+        const err = await res.json().catch(()=>({}));
+        throw new Error(err?.error?.message||JSON.stringify(err)||`HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      return (data.content||[]).map(b=>b.text||'').join('');
+    } catch(e) {
+      if (i<retries-1) { await sleep(delayMs*(i+1)); continue; }
+      throw e;
+    }
+  }
+}
+
+function buildMessages() {
+  const screenName = document.getElementById('screen-name').value.trim();
+  const screenDesc = document.getElementById('screen-desc').value.trim();
+  if (currentTab==='img' && imgBase64) {
+    const parts=[];
+    if (screenName) parts.push(`화면명: ${screenName}`);
+    if (screenDesc) parts.push(`화면 설명: ${screenDesc}`);
+    parts.push('위 화면 이미지의 모든 UI 구성 요소를 인식하여 디스크립션을 작성해주세요.');
+    return [{ role:'user', content:[
+      { type:'image', source:{ type:'base64', media_type:imgMime, data:imgBase64 } },
+      { type:'text', text:parts.join('\n') }
+    ]}];
+  }
+  const elements = getElements();
+  const lines=[];
+  if (screenName) lines.push(`화면명: ${screenName}`);
+  if (screenDesc) lines.push(`화면 설명: ${screenDesc}\n`);
+  elements.forEach(e=>{
+    lines.push(`- 기능명: ${e.name}`);
+    lines.push(`- 타입: ${e.type}`);
+    if (e.desc) lines.push(`- 기능 설명: ${e.desc}`);
+    lines.push('');
+  });
+  return [{ role:'user', content:lines.join('\n').trim() }];
+}
+
+async function generateBase() {
+  if (currentTab==='img' && !imgBase64) {
+    document.getElementById('status').textContent='이미지를 먼저 업로드해주세요.'; return;
+  }
+  if (currentTab==='manual' && !getElements().length) {
+    document.getElementById('status').textContent='최소 하나의 요소를 입력해주세요.'; return;
+  }
+
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  document.getElementById('status').innerHTML = '<span class="dot-anim">기본 디스크립션 생성 중</span>';
+  const blk = document.getElementById('blk-mine');
+  blk.classList.add('block-pending'); blk.classList.remove('block-done');
+  document.getElementById('text-mine').innerHTML = '<span class="loading-text dot-anim">생성 중</span>';
+  document.getElementById('result-section').style.display = 'block';
+  document.getElementById('blk-pm').style.display = 'none';
+  document.getElementById('pm-btn-wrap').style.display = 'none';
+  document.getElementById('download-btn').style.display = 'none';
+  document.getElementById('result-section').scrollIntoView({ behavior:'smooth', block:'start' });
+
+  const messages = buildMessages();
+  window._lastMessages = messages;
+
+  try {
+    const text = await callAPI(SYS_BASE, messages);
+    window._results.mine = text;
+    document.getElementById('text-mine').textContent = text;
+    blk.classList.remove('block-pending'); blk.classList.add('block-done');
+    document.getElementById('status').textContent = '완료';
+    document.getElementById('pm-btn-wrap').style.display = 'block';
+    document.getElementById('download-btn').style.display = 'block';
+    window._screenName = document.getElementById('screen-name').value.trim() || '디스크립션';
+
+    /* 히스토리 자동 저장 */
+    const now = new Date();
+    const dateStr = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    pushHistory({
+      screenName: document.getElementById('screen-name').value.trim(),
+      screenDesc: document.getElementById('screen-desc').value.trim(),
+      elements: currentTab==='manual' ? getElements() : [],
+      resultMine: text,
+      date: dateStr
+    });
+
+  } catch(e) {
+    document.getElementById('text-mine').textContent = `생성 실패: ${e.message}`;
+    blk.classList.remove('block-pending'); blk.classList.add('block-done');
+    document.getElementById('status').textContent = '오류가 발생했습니다.';
+  }
+  btn.disabled = false;
+}
+
+async function generatePM() {
+  const pmBtn = document.getElementById('pm-btn');
+  pmBtn.disabled = true;
+  pmBtn.textContent = '생성 중...';
+  const blk = document.getElementById('blk-pm');
+  blk.style.display = 'block';
+  blk.classList.add('block-pending'); blk.classList.remove('block-done');
+  document.getElementById('text-pm').innerHTML = '<span class="loading-text dot-anim">생성 중</span>';
+  try {
+    const text = await callAPI(SYS_PM, window._lastMessages);
+    window._results.pm = text;
+    document.getElementById('text-pm').textContent = text;
+    blk.classList.remove('block-pending'); blk.classList.add('block-done');
+    pmBtn.textContent = '+ 기획 전문가 제안 다시 받기';
+  } catch(e) {
+    document.getElementById('text-pm').textContent = `생성 실패: ${e.message}`;
+    blk.classList.remove('block-pending'); blk.classList.add('block-done');
+    pmBtn.textContent = '+ 기획 전문가 제안 받기';
+  }
+  pmBtn.disabled = false;
+}
+
+function copyBlock(key) {
+  const text = document.getElementById('text-'+key).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btnMap = { mine:document.querySelector('#blk-mine .copy-small'), pm:document.querySelector('#blk-pm .copy-small') };
+    const btn = btnMap[key]; if (!btn) return;
+    const orig = btn.textContent;
+    btn.textContent='복사됨!';
+    setTimeout(()=>btn.textContent=orig,1500);
+  });
+}
+
+function downloadAll() {
+  const r = window._results||{};
+  const name = (window._screenName||'디스크립션').replace(/\s+/g,'_');
+  const sections=[['기본 디스크립션','mine']];
+  if (r.pm) sections.push(['서비스 기획 전문가 제안','pm']);
+  const sep='='.repeat(40);
+  const full=sections.map(([label,k])=>`[ ${label} ]\n\n${r[k]||''}`).join(`\n\n${sep}\n\n`);
+  const blob=new Blob([full],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`${name}_디스크립션.txt`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+</script>
+</body>
+</html>
